@@ -1,4 +1,4 @@
-use std::cmp;
+use std::ops::{Add, Sub};
 
 pub struct Vector3f {
     pub x: f32,
@@ -27,8 +27,36 @@ impl Vector3f {
         // Ekisde
         return self.x.max(self.y.max(self.z));
     }
+
+    pub fn abs(&self) -> Vector3f {
+        Vector3f {
+            x: self.x.abs(),
+            y: self.y.abs(),
+            z: self.z.abs(),
+        }
+    }
 }
 
-impl ops::Add for Vector3f {
-    
+impl Add for Vector3f {
+    type Output = Vector3f;
+
+    fn add(self, rhs: Vector3f) -> Vector3f {
+        Vector3f {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+            z: self.z + rhs.z,
+        }
+    }
+}
+
+impl Sub for Vector3f {
+    type Output = Vector3f;
+
+    fn sub(self, rhs: Vector3f) -> Vector3f {
+        Vector3f {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+            z: self.z - rhs.z,
+        }
+    }
 }
