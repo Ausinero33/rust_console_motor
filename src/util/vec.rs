@@ -28,3 +28,7 @@ impl Vector3f {
         return self.x.max(self.y.max(self.z));
     }
 }
+
+impl ops::Add for Vector3f {
+    
+}
