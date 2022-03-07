@@ -1,4 +1,4 @@
-use std::{io::{stdout, Write}, time::{Instant, Duration}, thread, ops::Add};
+use std::{io::{stdout, Write}, time::{Instant, Duration}, thread};
 
 use crossterm::{execute, terminal::{size, self}, cursor, queue, style};
 

@@ -1,5 +1,7 @@
 use std::ops::{Add, Sub};
 
+
+#[derive(Clone, Copy)]
 pub struct Vector3f {
     pub x: f32,
     pub y: f32,
@@ -28,11 +30,19 @@ impl Vector3f {
         return self.x.max(self.y.max(self.z));
     }
 
+    pub fn max_vec(&self, num: f32) -> Vector3f {
+        Vector3f {
+            x: self.x.max(num),
+            y: self.y.max(num),
+            z: self.z.max(num),
+        }
+    }
+
     pub fn abs(&self) -> Vector3f {
         Vector3f {
             x: self.x.abs(),
             y: self.y.abs(),
-            z: self.z.abs(),
+            z: self.z.abs()
         }
     }
 }
