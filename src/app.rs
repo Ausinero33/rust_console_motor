@@ -2,13 +2,12 @@ use std::{io::{stdout, Write}, time::{Instant, Duration}, thread};
 
 use crossterm::{execute, terminal::{size, self}, cursor, queue, style};
 
-use crate::{core::object::Object, util::vec::Vector3f};
+use crate::{core::{object::Object, render::Renderer}};
 
 pub struct App {
     framerate: u16,
     frame_buffer: Vec<u8>,
-    objs: Vec<Box<dyn Object>>,
-    eye: Vector3f,
+    renderer: Renderer,
 }
 
 impl App {
@@ -26,8 +25,7 @@ impl App {
         App {
             framerate: 24,
             frame_buffer: vec![0x24; (size.0 * size.1) as usize],
-            objs: Vec::new(),
-            eye: Vector3f{x: 0f32, y: 0f32, z: 0f32},
+            renderer: Renderer::new(),
         }
     }
 
@@ -57,17 +55,8 @@ impl App {
     }
 
     pub fn add_object(&mut self, obj: Box<dyn Object>) {
-        self.objs.push(obj);
+        self.renderer.add_object(obj);
     }
 
-    fn signed_dst_to_scene(&self) -> f32 {
-        let mut dst_to_scene = f32::MAX;
 
-        for i in &self.objs {
-            let dst = i.signed_dst_from_point(&self.eye);
-            dst_to_scene = dst_to_scene.max(dst);
-        }
-
-        dst_to_scene
-    }
 }
