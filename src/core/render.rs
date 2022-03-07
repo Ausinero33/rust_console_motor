@@ -22,12 +22,18 @@ impl Renderer {
         self.objs.push(obj);
     }
 
+    pub fn render(&self, buffer: &mut [u8]) {
+        for i in buffer {
+
+        }
+    }
+
     fn signed_dst_to_scene(&self) -> f32 {
         let mut dst_to_scene = f32::MAX;
 
         for i in &self.objs {
             let dst = i.signed_dst_from_point(&self.eye);
-            dst_to_scene = dst_to_scene.max(dst);
+            dst_to_scene = dst_to_scene.min(dst);
         }
 
         dst_to_scene

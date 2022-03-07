@@ -1,4 +1,4 @@
-use std::ops::{Add, Sub};
+use std::ops::{Add, Sub, Mul};
 
 
 #[derive(Clone, Copy)]
@@ -45,6 +45,16 @@ impl Vector3f {
             z: self.z.abs()
         }
     }
+
+    pub fn normalize(self) -> Vector3f {
+        let length = self.length();
+
+        Vector3f {
+            x: self.x / length,
+            y: self.y / length,
+            z: self.z / length,
+        }
+    }
 }
 
 impl Add for Vector3f {
@@ -67,6 +77,19 @@ impl Sub for Vector3f {
             x: self.x - rhs.x,
             y: self.y - rhs.y,
             z: self.z - rhs.z,
+        }
+    }
+}
+
+impl Mul<f32> for Vector3f {
+    type Output = Vector3f;
+
+    fn mul(self, rhs: f32) -> Vector3f {
+        Vector3f {
+            x: self.x * rhs,
+            y: self.y * rhs,
+            z: self.z * rhs,
+
         }
     }
 }

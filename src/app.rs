@@ -2,7 +2,7 @@ use std::{io::{stdout, Write}, time::{Instant, Duration}, thread};
 
 use crossterm::{execute, terminal::{size, self}, cursor, queue, style};
 
-use crate::{core::{object::Object, render::Renderer}};
+use crate::core::{object::Object, render::Renderer};
 
 pub struct App {
     framerate: u16,
@@ -20,11 +20,10 @@ impl App {
             terminal::EnableLineWrap,
             cursor::Hide,
         ).unwrap();
-        
 
         App {
             framerate: 24,
-            frame_buffer: vec![0x24; (size.0 * size.1) as usize],
+            frame_buffer: vec![0x00; (size.0 * size.1) as usize],
             renderer: Renderer::new(),
         }
     }
