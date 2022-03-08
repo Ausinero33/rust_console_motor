@@ -14,7 +14,6 @@ impl Ray {
         Ray {
             origin: self.origin + self.direction * dst,
             direction: self.direction,
-            
         }
     }
 }
