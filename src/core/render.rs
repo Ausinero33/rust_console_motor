@@ -20,7 +20,7 @@ impl Renderer {
         Renderer {
             objs: Vec::new(),
             eye: Vector3f {x: 0.0, y: 1.0, z: 0.0},
-            light: Vector3f {x: 0., y: 3., z: 1.},
+            light: Vector3f {x: 0., y: 3., z: 6.},
         }
     }
 

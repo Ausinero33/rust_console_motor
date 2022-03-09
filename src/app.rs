@@ -1,6 +1,6 @@
 use std::{io::{stdout, Write}, time::{Instant, Duration}, thread};
 
-use crossterm::{execute, terminal::{size, self, enable_raw_mode, LeaveAlternateScreen, DisableLineWrap, disable_raw_mode}, cursor, event::{read, poll, Event}};
+use crossterm::{execute, terminal::{size, self, enable_raw_mode, LeaveAlternateScreen, DisableLineWrap, disable_raw_mode, SetTitle}, cursor, event::{read, poll, Event}, style::Print};
 
 use crate::core::{object::Object, render::Renderer};
 
@@ -37,31 +37,42 @@ impl App {
 
     pub fn run(self) {
         loop {
+            let start = Instant::now();
+            
             if poll(Duration::from_nanos(5)).unwrap() {
                 match read().unwrap() {
                     Event::Key(_event) => break,
                     _ => {},
                 }
             }
-
-
-            let start = Instant::now();
             
             execute!(
                 stdout(),
                 cursor::MoveTo(0, 0),
-                // style::Print(String::from_utf8_lossy(self.frame_buffer.as_slice())),
             ).unwrap();
 
             self.renderer.render(&self.size);
-            
+
             stdout().flush().unwrap();
             
-            let to_sleep = Instant::now()
-                .duration_since(start)
-                .as_nanos()
-                .saturating_sub((1.0 / (self.framerate as u32 * 1000000) as f32) as u128) as u64;
-            thread::sleep(Duration::from_nanos(to_sleep));
+            let dt = Instant::now().duration_since(start);
+            
+            // Arreglar esto
+
+            let to_sleep = dt
+                .as_micros()
+                .saturating_sub((1. / (self.framerate as f32 * 1000000.)) as u128);
+
+            let str = format!(
+                "{:.2}", 1. / (dt.as_micros() as f32 / 1000000.)
+            );
+
+            execute!(
+                stdout(),
+                SetTitle(str)
+            ).unwrap();
+
+            thread::sleep(Duration::from_micros(to_sleep as u64));
         }
 
         execute!(stdout(), 
