@@ -19,6 +19,11 @@ pub struct Cube {
     c: Vector3f,
 }
 
+pub struct HorizontalPlane {
+    // Coordenada y del plano
+    y: f32,
+}
+
 impl Sphere {
     pub fn new(x: f32, y: f32, z: f32, r: f32) -> Sphere {
         Sphere {
@@ -34,6 +39,12 @@ impl Cube {
             s: Vector3f { x: sx, y: sy, z: sz }, 
             c: Vector3f { x: cx, y: cy, z: cz } 
         }
+    }
+}
+
+impl HorizontalPlane {
+    pub fn new(y: f32) -> HorizontalPlane {
+        HorizontalPlane { y }
     }
 }
 
@@ -76,5 +87,11 @@ impl Object for Cube {
         let n = f32::max(f32::max(f32::min(o.x, 0f32), f32::min(o.y, 0f32)), f32::min(o.z, 0f32));
     
         return ud + n;
+    }
+}
+
+impl Object for HorizontalPlane {
+    fn signed_dst_from_point(&self, point: Vector3f) -> f32 {
+        point.y - self.y
     }
 }

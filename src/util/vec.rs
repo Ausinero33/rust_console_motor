@@ -1,4 +1,5 @@
-use std::ops::{Add, Sub, Mul};
+use core::fmt;
+use std::ops::{Add, Sub, Mul, Div};
 
 
 #[derive(Clone, Copy)]
@@ -91,5 +92,27 @@ impl Mul<f32> for Vector3f {
             z: self.z * rhs,
 
         }
+    }
+}
+
+impl Div<f32> for Vector3f {
+    type Output = Vector3f;
+
+    fn div(self, rhs: f32) -> Self::Output {
+        Vector3f {
+            x: self.x / rhs,
+            y: self.y / rhs,
+            z: self.z / rhs,
+        }
+    }
+}
+
+impl fmt::Debug for Vector3f {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Vector3f")
+            .field("x", &self.x)
+            .field("y", &self.y)
+            .field("z", &self.z)
+            .finish()
     }
 }

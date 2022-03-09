@@ -1,12 +1,11 @@
 use std::{io::{stdout, Write}, time::{Instant, Duration}, thread};
 
-use crossterm::{execute, terminal::{size, self, enable_raw_mode, LeaveAlternateScreen, DisableLineWrap, disable_raw_mode}, cursor, queue, style, event::{read, poll, Event}};
+use crossterm::{execute, terminal::{size, self, enable_raw_mode, LeaveAlternateScreen, DisableLineWrap, disable_raw_mode}, cursor, event::{read, poll, Event}};
 
 use crate::core::{object::Object, render::Renderer};
 
 pub struct App {
     framerate: u16,
-    frame_buffer: Vec<u8>,
     renderer: Renderer,
     size: (u16, u16)
 }
@@ -26,7 +25,6 @@ impl App {
 
         App {
             framerate: 24,
-            frame_buffer: vec![0x30; (size.0 * size.1) as usize],
             renderer: Renderer::new(),
             size,
         }
@@ -37,9 +35,9 @@ impl App {
         self
     }
 
-    pub fn run(mut self) {
+    pub fn run(self) {
         loop {
-            if poll(Duration::from_millis(100)).unwrap() {
+            if poll(Duration::from_nanos(5)).unwrap() {
                 match read().unwrap() {
                     Event::Key(_event) => break,
                     _ => {},
@@ -55,7 +53,7 @@ impl App {
                 // style::Print(String::from_utf8_lossy(self.frame_buffer.as_slice())),
             ).unwrap();
 
-            self.renderer.render(self.frame_buffer.as_mut_slice(), &self.size);
+            self.renderer.render(&self.size);
             
             stdout().flush().unwrap();
             
