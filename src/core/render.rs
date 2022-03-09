@@ -1,6 +1,6 @@
 use std::io::stdout;
 
-use crossterm::{queue, style::{Color, SetForegroundColor, Print}};
+use crossterm::{queue, style::{Color, SetForegroundColor, Print, SetColors, Colors}};
 
 use super::object::Object;
 use crate::util::vec::Vector3f;
@@ -64,8 +64,8 @@ impl Renderer {
 
                 queue!{
                     stdout(),
-                    SetForegroundColor(color),
-                    Print("\u{2588}"),
+                    SetColors(Colors::new(color, Color::White)),
+                    Print("\u{2592}"),
                 }.unwrap();
                 // buffer[(col + row * size.0) as usize] = dst as u8 + 0x20;
                 // buffer[(col + row * size.0) as usize] = (col + row * size.0) as u8;
