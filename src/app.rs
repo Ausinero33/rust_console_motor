@@ -2,12 +2,13 @@ use std::{io::{stdout, Write}, time::{Instant, Duration}, thread};
 
 use crossterm::{execute, terminal::{size, self, enable_raw_mode, LeaveAlternateScreen, DisableLineWrap, disable_raw_mode, SetTitle}, cursor, event::{read, poll, Event}, style::Print};
 
-use crate::core::{object::Object, render::Renderer};
+use crate::{core::{object::Object, render::Renderer}, util::vec::Vector3f};
 
 pub struct App {
     framerate: u16,
     renderer: Renderer,
-    size: (u16, u16)
+    size: (u16, u16),
+    elapsed_time: f64,
 }
 
 impl App {
@@ -27,6 +28,7 @@ impl App {
             framerate: 24,
             renderer: Renderer::new(),
             size,
+            elapsed_time: 0.,
         }
     }
 
@@ -35,7 +37,7 @@ impl App {
         self
     }
 
-    pub fn run(self) {
+    pub fn run(mut self) {
         loop {
             let start = Instant::now();
             
@@ -51,12 +53,15 @@ impl App {
                 cursor::MoveTo(0, 0),
             ).unwrap();
 
+            self.update_light(self.elapsed_time);
             self.renderer.render(&self.size);
 
             stdout().flush().unwrap();
             
             let dt = Instant::now().duration_since(start);
-            
+           
+            self.elapsed_time += dt.as_secs_f64();
+
             // Arreglar esto
 
             let to_sleep = dt
@@ -88,5 +93,11 @@ impl App {
         self.renderer.add_object(obj);
     }
 
-
+    fn update_light(&mut self, t: f64) {
+        self.renderer.light = Vector3f {
+            x: self.renderer.initial_light.x + libm::sin(t) as f32 * 5.,
+            y: self.renderer.initial_light.y,
+            z: self.renderer.initial_light.z + libm::cos(t) as f32 * 5.,
+        };
+    }
 }

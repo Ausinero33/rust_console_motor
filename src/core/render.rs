@@ -12,7 +12,8 @@ const SURF_DISTANCE: f32 = 0.01;
 pub struct Renderer {
     objs: Vec<Box<dyn Object>>,
     eye: Vector3f,
-    light: Vector3f,
+    pub light: Vector3f,
+    pub initial_light: Vector3f,
 }
 
 impl Renderer {
@@ -20,15 +21,16 @@ impl Renderer {
         Renderer {
             objs: Vec::new(),
             eye: Vector3f {x: 0.0, y: 1.0, z: 0.0},
-            light: Vector3f {x: 0., y: 10., z: 6.},
+            light: Vector3f {x: 0., y: 0., z: 0.},
+            initial_light: Vector3f { x: 0., y: 3., z: 6. },
         }
     }
 
-    fn ray_march(&self, direction: Vector3f) -> f32 {
+    fn ray_march(&self, origin: Vector3f, direction: Vector3f) -> f32 {
         let mut dst_from_origin = 0.0;
 
         for _ in 0..MAX_STEPS {
-            let p = self.eye + direction * dst_from_origin;
+            let p = origin + direction * dst_from_origin;
             let dst_to_scene = self.signed_dst_to_scene(p);
             dst_from_origin += dst_to_scene;
 
@@ -56,11 +58,22 @@ impl Renderer {
         n.normalize()
     }
 
-    fn get_light(&self, point: Vector3f) -> f32 {
+    fn get_light(&self, point: Vector3f, dst: f32) -> f32 {
         let light = (self.light - point).normalize();
-        let normal = self.get_normal(point);
+        let normal =  self.get_normal(point);
 
-        normal.dot_product(light)
+        let d = self.ray_march(point + normal * SURF_DISTANCE * 2., light);
+        let mut dif = (normal.dot_product(light) + 1.) / 2.;
+
+        if d < (point - light).length() {
+            dif *= 0.1;
+        }
+
+        if dst <= MAX_DISTANCE {
+            dif
+        } else {
+            0.
+        }
     }
 
     pub fn render(&self,  size: &(u16, u16)) {
@@ -70,13 +83,13 @@ impl Renderer {
                     x: (col as f32 - (size.0 / 2) as f32) / 2.,
                     y: -(row as f32 - (size.1 / 2) as f32),
                     // Aqui igual hay que variarlo según el FOV
-                    z: 20.,
+                    z: 30.,
                 };
 
-                let dst = self.ray_march(dir.normalize());
+                let dst = self.ray_march(self.eye, dir.normalize());
                 
                 let p = self.eye + dir.normalize() * dst;
-                let light = (self.get_light(p) * 255.) as u8;
+                let light = (self.get_light(p, dst) * 255.) as u8;
                 // let normal = self.get_normal(p) * 255.0;
         
                 // let color = Color::Rgb{ r: normal.x as u8, g: normal.y as u8, b: normal.z as u8 };
