@@ -24,6 +24,14 @@ pub struct HorizontalPlane {
     y: f32,
 }
 
+pub struct VerticalPlaneX {
+    x: f32,
+}
+
+pub struct VerticalPlaneZ {
+    z: f32,
+}
+
 impl Sphere {
     pub fn new(x: f32, y: f32, z: f32, r: f32) -> Sphere {
         Sphere {
@@ -44,7 +52,20 @@ impl Cube {
 
 impl HorizontalPlane {
     pub fn new(y: f32) -> HorizontalPlane {
+
         HorizontalPlane { y }
+    }
+}
+
+impl VerticalPlaneX {
+    pub fn new(x: f32) -> VerticalPlaneX {
+        VerticalPlaneX { x }
+    }
+}
+
+impl VerticalPlaneZ {
+    pub fn new(z: f32) -> VerticalPlaneZ {
+        VerticalPlaneZ { z }
     }
 }
 
@@ -92,6 +113,18 @@ impl Object for Cube {
 
 impl Object for HorizontalPlane {
     fn signed_dst_from_point(&self, point: Vector3f) -> f32 {
-        point.y - self.y
+        (point.y - self.y).abs()
+    }
+}
+
+impl Object for VerticalPlaneX {
+    fn signed_dst_from_point(&self, point: Vector3f) -> f32 {
+        (point.x - self.x).abs()
+    }
+}
+
+impl Object for VerticalPlaneZ {
+    fn signed_dst_from_point(&self, point: Vector3f) -> f32 {
+        (point.z - self.z).abs()
     }
 }

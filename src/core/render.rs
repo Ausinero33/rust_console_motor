@@ -47,33 +47,36 @@ impl Renderer {
     }
 
     fn get_normal(&self, point: Vector3f) -> Vector3f {
-        let dst = self.signed_dst_to_scene(point);
+        let x_pl = self.signed_dst_to_scene( Vector3f { x: point.x + 0.001, y: point.y, z: point.z } );
+        let x_mi = self.signed_dst_to_scene( Vector3f { x: point.x - 0.001, y: point.y, z: point.z } );
+        let y_pl = self.signed_dst_to_scene( Vector3f { x: point.x, y: point.y + 0.001, z: point.z } );
+        let y_mi = self.signed_dst_to_scene( Vector3f { x: point.x, y: point.y - 0.001, z: point.z } );
+        let z_pl = self.signed_dst_to_scene( Vector3f { x: point.x, y: point.y, z: point.z + 0.001 } );
+        let z_mi = self.signed_dst_to_scene( Vector3f { x: point.x, y: point.y, z: point.z - 0.001 } );
 
-        let n = Vector3f {
-            x: dst - self.signed_dst_to_scene(point - Vector3f { x: SURF_DISTANCE, y: 0., z: 0. }),
-            y: dst - self.signed_dst_to_scene(point - Vector3f { x: 0., y: SURF_DISTANCE, z: 0. }),
-            z: dst - self.signed_dst_to_scene(point - Vector3f { x: 0., y: 0., z: SURF_DISTANCE }),
-        };
+        let x_dif = x_pl - x_mi;
+        let y_dif = y_pl - y_mi;
+        let z_dif = z_pl - z_mi;
 
-        n.normalize()
+        Vector3f { x: x_dif, y: y_dif, z: z_dif }.normalize()
     }
 
-    fn get_light(&self, point: Vector3f, dst: f32) -> f32 {
+    fn get_light(&self, point: Vector3f) -> f32 {
         let light = (self.light - point).normalize();
         let normal =  self.get_normal(point);
-
+ 
         let d = self.ray_march(point + normal * SURF_DISTANCE * 2., light);
-        let mut dif = (normal.dot_product(light) + 1.) / 2.;
+        let mut dif = normal.dot_product(light);
+        
+        if dif < 0. {
+            dif = 0.;
+        }
 
-        if d < (point - light).length() {
+        if d < (self.light - point).length() {
             dif *= 0.1;
         }
 
-        if dst <= MAX_DISTANCE {
-            dif
-        } else {
-            0.
-        }
+        dif
     }
 
     pub fn render(&self,  size: &(u16, u16)) {
@@ -84,14 +87,15 @@ impl Renderer {
                     y: -(row as f32 - (size.1 / 2) as f32),
                     // Aqui igual hay que variarlo según el FOV
                     z: 30.,
-                };
+                }.normalize();
 
-                let dst = self.ray_march(self.eye, dir.normalize());
+                let dst = self.ray_march(self.eye, dir);
                 
-                let p = self.eye + dir.normalize() * dst;
-                let light = (self.get_light(p, dst) * 255.) as u8;
-                // let normal = self.get_normal(p) * 255.0;
+                let p = self.eye + dir * dst;
+                let light = (self.get_light(p) * 255.) as u8;
+                let normal = self.get_normal(p) * 255.0;
         
+                // let color = Color::Rgb{ r: dst as u8, g: dst as u8, b: dst as u8 };
                 // let color = Color::Rgb{ r: normal.x as u8, g: normal.y as u8, b: normal.z as u8 };
                 let color = Color::Rgb{ r: light, g: light, b: light };
                 queue!{
@@ -106,11 +110,8 @@ impl Renderer {
     fn signed_dst_to_scene(&self, point: Vector3f) -> f32 {
         let mut dst_to_scene = f32::MAX; 
 
-        for i in &self.objs {
-            let dst = i.signed_dst_from_point(point);
-            dst_to_scene = dst_to_scene.min(dst);
-
-        }
+        self.objs.iter()
+            .for_each(|x| dst_to_scene = x.signed_dst_from_point(point).min(dst_to_scene));
 
         dst_to_scene
     }

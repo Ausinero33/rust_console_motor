@@ -23,7 +23,8 @@ impl Vector3f {
     }
 
     pub fn length(&self) -> f32 {
-        f32::sqrt(f32::powi(self.x, 2) + f32::powi(self.y, 2) + f32::powi(self.z, 2))
+        // f32::sqrt(f32::powi(self.x, 2) + f32::powi(self.y, 2) + f32::powi(self.z, 2))
+        (self.x * self.x + self.y * self.y + self.z * self.z).sqrt()
     }
 
     pub fn max(&self) -> f32 {
@@ -48,13 +49,7 @@ impl Vector3f {
     }
 
     pub fn normalize(self) -> Vector3f {
-        let length = self.length();
-
-        Vector3f {
-            x: self.x / length,
-            y: self.y / length,
-            z: self.z / length,
-        }
+        self / self.length()
     }
 }
 

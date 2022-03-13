@@ -1,6 +1,6 @@
 use std::{io::{stdout, Write}, time::{Instant, Duration}, thread};
 
-use crossterm::{execute, terminal::{size, self, enable_raw_mode, LeaveAlternateScreen, DisableLineWrap, disable_raw_mode, SetTitle}, cursor, event::{read, poll, Event}, style::Print};
+use crossterm::{execute, terminal::{size, self, enable_raw_mode, LeaveAlternateScreen, DisableLineWrap, disable_raw_mode, SetTitle}, cursor, event::{read, poll, Event}, style::Print, queue};
 
 use crate::{core::{object::Object, render::Renderer}, util::vec::Vector3f};
 
@@ -48,12 +48,12 @@ impl App {
                 }
             }
             
-            execute!(
+            queue!(
                 stdout(),
                 cursor::MoveTo(0, 0),
             ).unwrap();
 
-            self.update_light(self.elapsed_time);
+            self.update_light(self.elapsed_time / 2.);
             self.renderer.render(&self.size);
 
             stdout().flush().unwrap();
@@ -62,22 +62,14 @@ impl App {
            
             self.elapsed_time += dt.as_secs_f64();
 
-            // Arreglar esto
-
-            let to_sleep = dt
-                .as_micros()
-                .saturating_sub((1. / (self.framerate as f32 * 1000000.)) as u128);
-
             let str = format!(
                 "{:.2}", 1. / (dt.as_micros() as f32 / 1000000.)
             );
 
-            execute!(
+            queue!(
                 stdout(),
                 SetTitle(str)
             ).unwrap();
-
-            thread::sleep(Duration::from_micros(to_sleep as u64));
         }
 
         execute!(stdout(), 
