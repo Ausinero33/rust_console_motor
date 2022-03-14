@@ -1,3 +1,5 @@
+use libm::{acosf, atan, log, atan2, powf, atan2f, logf, sin, cosf, sinf};
+
 use crate::util::vec::Vector3f;
 
 pub trait Object {
@@ -30,6 +32,11 @@ pub struct VerticalPlaneX {
 
 pub struct VerticalPlaneZ {
     z: f32,
+}
+
+pub struct Mandelbrot3D {
+    pub iterations: u16,
+    pub power: f32,
 }
 
 impl Sphere {
@@ -126,5 +133,34 @@ impl Object for VerticalPlaneX {
 impl Object for VerticalPlaneZ {
     fn signed_dst_from_point(&self, point: Vector3f) -> f32 {
         (point.z - self.z).abs()
+    }
+}
+
+impl Object for Mandelbrot3D {
+    fn signed_dst_from_point(&self, point: Vector3f) -> f32 {
+        let mut z = point;
+        let mut dr = 1.;
+        let mut r = 0.;
+
+        for _i in 0..self.iterations {
+            r = z.length();
+            if r > 2. {
+                break;
+            }
+
+            let theta = acosf(z.z / r) * self.power;
+            let phi = atan2f(z.y, z.x) * self.power;
+            let zr = powf(r, self.power);
+            dr = powf(r, self.power - 1.) * self.power * dr + 1.;
+            
+            z = Vector3f {
+                x: sinf(theta) * cosf(phi),
+                y: sinf(phi) * sinf(theta),
+                z: cosf(theta),
+            } * zr;
+            z = z + point;
+        }
+
+        return 0.5 * logf(r) * r / dr;
     }
 }

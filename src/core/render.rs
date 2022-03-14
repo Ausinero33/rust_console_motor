@@ -11,7 +11,7 @@ const SURF_DISTANCE: f32 = 0.01;
 
 pub struct Renderer {
     objs: Vec<Box<dyn Object>>,
-    eye: Vector3f,
+    pub eye: Vector3f,
     pub light: Vector3f,
     pub initial_light: Vector3f,
 }
@@ -20,8 +20,8 @@ impl Renderer {
     pub fn new() -> Renderer {
         Renderer {
             objs: Vec::new(),
-            eye: Vector3f {x: 0.0, y: 1.0, z: 0.0},
-            light: Vector3f {x: 0., y: 0., z: 0.},
+            eye: Vector3f {x: 0., y: 0., z: -3.},
+            light: Vector3f {x: 0., y: 0., z: -1.5},
             initial_light: Vector3f { x: 0., y: 3., z: 6. },
         }
     }
@@ -96,8 +96,8 @@ impl Renderer {
                 let normal = self.get_normal(p) * 255.0;
         
                 // let color = Color::Rgb{ r: dst as u8, g: dst as u8, b: dst as u8 };
-                // let color = Color::Rgb{ r: normal.x as u8, g: normal.y as u8, b: normal.z as u8 };
-                let color = Color::Rgb{ r: light, g: light, b: light };
+                let color = Color::Rgb{ r: normal.x as u8, g: normal.y as u8, b: normal.z as u8 };
+                // let color = Color::Rgb{ r: light, g: light, b: light };
                 queue!{
                     stdout(),
                     SetForegroundColor(color),

@@ -1,6 +1,6 @@
 use std::{io::{stdout, Write}, time::{Instant, Duration}, thread};
 
-use crossterm::{execute, terminal::{size, self, enable_raw_mode, LeaveAlternateScreen, DisableLineWrap, disable_raw_mode, SetTitle}, cursor, event::{read, poll, Event}, style::Print, queue};
+use crossterm::{execute, terminal::{size, self, enable_raw_mode, LeaveAlternateScreen, DisableLineWrap, disable_raw_mode, SetTitle}, cursor, event::{read, poll, Event, KeyCode, KeyEvent}, style::Print, queue};
 
 use crate::{core::{object::Object, render::Renderer}, util::vec::Vector3f};
 
@@ -38,12 +38,20 @@ impl App {
     }
 
     pub fn run(mut self) {
+        let mut dt: Duration = Duration::new(0, 0);
         loop {
             let start = Instant::now();
-            
+           
+
             if poll(Duration::from_nanos(5)).unwrap() {
                 match read().unwrap() {
-                    Event::Key(_event) => break,
+                    Event::Key(KeyEvent {code: KeyCode::Char('c'), ..}) => break,
+                    Event::Key(KeyEvent {code: KeyCode::Char('w'), ..}) => self.renderer.eye.z += 1. * dt.as_micros() as f32 / 1000000.,
+                    Event::Key(KeyEvent {code: KeyCode::Char('s'), ..}) => self.renderer.eye.z -= 1. * dt.as_micros() as f32 / 1000000.,
+                    Event::Key(KeyEvent {code: KeyCode::Char('d'), ..}) => self.renderer.eye.x += 1. * dt.as_micros() as f32 / 1000000.,
+                    Event::Key(KeyEvent {code: KeyCode::Char('a'), ..}) => self.renderer.eye.x -= 1. * dt.as_micros() as f32 / 1000000.,
+                    Event::Key(KeyEvent {code: KeyCode::Char('z'), ..}) => self.renderer.eye.y += 1. * dt.as_micros() as f32 / 1000000.,
+                    Event::Key(KeyEvent {code: KeyCode::Char('x'), ..}) => self.renderer.eye.y -= 1. * dt.as_micros() as f32 / 1000000.,
                     _ => {},
                 }
             }
@@ -53,12 +61,12 @@ impl App {
                 cursor::MoveTo(0, 0),
             ).unwrap();
 
-            self.update_light(self.elapsed_time / 2.);
+            // self.update_light(self.elapsed_time / 2.);
             self.renderer.render(&self.size);
 
             stdout().flush().unwrap();
             
-            let dt = Instant::now().duration_since(start);
+            dt = Instant::now().duration_since(start);
            
             self.elapsed_time += dt.as_secs_f64();
 
